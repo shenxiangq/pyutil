@@ -1,6 +1,6 @@
 #coding=utf8
 from datetime import datetime, date
-from pyutil.program.python import str_to_unicode
+from pyutil import str_to_unicode
 
 def shorten(name, limit):
     '''

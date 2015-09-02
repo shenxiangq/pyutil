@@ -1,7 +1,7 @@
 #coding=utf8
 
 import functools, time, sys, logging
-from pyutil.program.fmtutil import fmt_exception
+from fmtutil import fmt_exception
 
 def throttle(wait, exception_wait=0):
     u"""
