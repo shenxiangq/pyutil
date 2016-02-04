@@ -117,6 +117,7 @@ class CLSpider(object):
                 with open(image_path, 'wb') as fout:
                     fout.write(data)
             img.set('src', page_id + '/' + image_id)
+            img.set('height', '600')
             
         html_body = html_template % (title, lxml.html.tostring(article, encoding='gbk'))
         filename = page_id + title + '.html'
