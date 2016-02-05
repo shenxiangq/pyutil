@@ -12,7 +12,7 @@ catalog = 'thread0806.php?fid=16'
 html_template = '''
     <html>
     <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=gb2312">
+    <meta http-equiv="Content-Type" content="text/html; charset=gbk">
     <title>%s</title>
     <style type="text/css">
 		img {
@@ -88,6 +88,11 @@ class CLSpider(object):
         
     def start(self):
         hub_url = main_domain + catalog
+        date = datetime.now().strftime('%Y-%m-%d')
+        self.date_dir = os.path.join('data', date)
+        if not os.path.exists(self.date_dir):
+            os.mkdir(self.date_dir)
+            os.mkdir(os.path.join(self.date_dir, 'imgs'))
         self.check_hub(hub_url)
     
     def detail_page(self, url, title, page_id):        
@@ -106,30 +111,26 @@ class CLSpider(object):
             img = tree.makeelement('img', dict(src=src))
             input.addnext(img)
             input.drop_tree()
-        
-        dir_path = os.path.join('data', page_id)
-        if not os.path.exists(dir_path):
-            os.mkdir(dir_path)
+                
         imgs = article.xpath('.//img')
         for img in imgs:
             src = img.get('src')
             format = re.search('(\.\w{2,5})$', src) or ''
             if format:
                 format = format.group(1)
-            image_id = str(uuid.uuid1()) + format
+            image_id = page_id + '-' + str(uuid.uuid1()) + format
             data = self.download(src)
-            image_path = os.path.join(dir_path, image_id)
+            image_path = os.path.join(self.date_dir, 'imgs', image_id)
             if data:
                 with open(image_path, 'wb') as fout:
                     fout.write(data)
-            img.set('src', page_id + '/' + image_id)
+            img.set('src', 'imgs' + '/' + image_id)
             #img.set('height', '600')
             
         html_body = html_template % (title, url, lxml.html.tostring(article, encoding='gbk'))
         filename = page_id + title + '.html'
-        with open(os.path.join('data', filename), 'w') as fout:
+        with open(os.path.join(self.date_dir, filename), 'w') as fout:
             fout.write(html_body)
-
 
 if __name__ == '__main__':
     spider = CLSpider()
