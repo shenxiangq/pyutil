@@ -14,8 +14,14 @@ html_template = '''
     <head>
     <meta http-equiv="Content-Type" content="text/html; charset=gb2312">
     <title>%s</title>
+    <style type="text/css">
+		img {
+			max-height: 600px;
+		}
+	</style>
     </head>
     <body>
+        <a target="_blank" href="%s">show source link</a>
         %s
     </body>
     </html>
@@ -117,9 +123,9 @@ class CLSpider(object):
                 with open(image_path, 'wb') as fout:
                     fout.write(data)
             img.set('src', page_id + '/' + image_id)
-            img.set('height', '600')
+            #img.set('height', '600')
             
-        html_body = html_template % (title, lxml.html.tostring(article, encoding='gbk'))
+        html_body = html_template % (title, url, lxml.html.tostring(article, encoding='gbk'))
         filename = page_id + title + '.html'
         with open(os.path.join('data', filename), 'w') as fout:
             fout.write(html_body)
