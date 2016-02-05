@@ -129,7 +129,7 @@ class CLSpider(object):
             
         html_body = html_template % (title, url, lxml.html.tostring(article, encoding='gbk'))
         filename = page_id + title + '.html'
-        with open(os.path.join(self.date_dir, filename), 'w') as fout:
+        with open(os.path.join(self.date_dir, filename.encode('gbk')), 'w') as fout:
             fout.write(html_body)
 
 if __name__ == '__main__':
