@@ -21,8 +21,10 @@ html_template = u'''
 	</style>
     </head>
     <body>
+        <div align="center">
         <a target="_blank" href="%s">show source link</a>
         %s
+        </div>
     </body>
     </html>
 '''
