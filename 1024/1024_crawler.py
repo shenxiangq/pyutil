@@ -7,7 +7,10 @@ from util import retry, to_unicode
 MAX_SIZE = 5*1024*1024 # 5MB
 
 main_domain = 'http://cl.recl.pw/'
-catalog = 'thread0806.php?fid=16'
+catalog = [
+    'thread0806.php?fid=16',
+    'thread0806.php?fid=16&page=2',
+    ]
 
 html_template = u'''
     <html>
@@ -90,13 +93,14 @@ class CLSpider(object):
         self.executor.shutdown(wait=True)
 
     def start(self):
-        hub_url = main_domain + catalog
-        date = datetime.now().strftime('%Y-%m-%d')
-        self.date_dir = os.path.join('data', date)
-        if not os.path.exists(self.date_dir):
-            os.mkdir(self.date_dir)
-            os.mkdir(os.path.join(self.date_dir, 'imgs'))
-        self.check_hub(hub_url)
+        for curl in catalog:
+            hub_url = main_domain + curl
+            date = datetime.now().strftime('%Y-%m-%d')
+            self.date_dir = os.path.join('data', date)
+            if not os.path.exists(self.date_dir):
+                os.mkdir(self.date_dir)
+                os.mkdir(os.path.join(self.date_dir, 'imgs'))
+            self.check_hub(hub_url)
 
     def detail_page(self, url, title, page_id):
         #import pdb;pdb.set_trace()
