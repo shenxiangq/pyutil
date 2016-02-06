@@ -9,7 +9,7 @@ MAX_SIZE = 5*1024*1024 # 5MB
 main_domain = 'http://cl.recl.pw/'
 catalog = 'thread0806.php?fid=16'
 
-html_template = '''
+html_template = u'''
     <html>
     <head>
     <meta http-equiv="Content-Type" content="text/html; charset=gbk">
@@ -28,7 +28,7 @@ html_template = '''
 '''
 
 class CLSpider(object):
-    
+
     def __init__(self, max_workers=5):
         self.executor = ThreadPoolExecutor(max_workers)
         self.parser = lxml.html.HTMLParser(encoding='gbk')
@@ -41,7 +41,7 @@ class CLSpider(object):
         except IOError:
             pass
         self.exists = set(self.exists_list)
-    
+
     @retry(max_tries=3)
     def download(self, url, max_size=MAX_SIZE):
         print url
@@ -52,7 +52,7 @@ class CLSpider(object):
         if length and int(length) > max_size:
             return None
         return rsp.read()
-    
+
     def check_hub(self, hub_url):
         body = self.download(hub_url)
         #tree = lxml.html.document_fromstring(body)
@@ -65,27 +65,28 @@ class CLSpider(object):
             number = e.xpath('./td[4]')
             if not a or not number:
                 continue
-            
+
             a = a[0]
             number = number[0]
             title = '-%s %s' % (number.text_content(), a.text_content())
             url = a.get('href')
-            page_id = re.search('/(\d+)\.html', url)            
+            page_id = re.search('/(\d+)\.html', url)
             if page_id:
                 page_id = page_id.group(1)
             if page_id in self.exists or page_id is None:
                 continue
             futures.append((self.executor.submit(self.detail_page, url, title, page_id), page_id))
             #self.detail_page(url, title, page_id)
-        
+
         for f, page_id in futures:
-            f.exception()
+            e = f.exception()
+            print e
             self.exists_list.insert(0, page_id)
             with open('exists.txt', 'w') as fout:
                 fout.write('\n'.join(self.exists_list))
-        
-        self.executor.shutdown(wait=True)     
-        
+
+        self.executor.shutdown(wait=True)
+
     def start(self):
         hub_url = main_domain + catalog
         date = datetime.now().strftime('%Y-%m-%d')
@@ -94,8 +95,8 @@ class CLSpider(object):
             os.mkdir(self.date_dir)
             os.mkdir(os.path.join(self.date_dir, 'imgs'))
         self.check_hub(hub_url)
-    
-    def detail_page(self, url, title, page_id):        
+
+    def detail_page(self, url, title, page_id):
         #import pdb;pdb.set_trace()
         body = self.download(url)
         tree = lxml.html.document_fromstring(body, parser=self.parser)
@@ -111,7 +112,7 @@ class CLSpider(object):
             img = tree.makeelement('img', dict(src=src))
             input.addnext(img)
             input.drop_tree()
-                
+
         imgs = article.xpath('.//img')
         for img in imgs:
             src = img.get('src')
@@ -126,11 +127,11 @@ class CLSpider(object):
                     fout.write(data)
             img.set('src', 'imgs' + '/' + image_id)
             #img.set('height', '600')
-            
-        html_body = html_template % (title, url, lxml.html.tostring(article, encoding='gbk'))
-        filename = page_id + '.html'
-        with open(os.path.join(self.date_dir, filename), 'w') as fout:
-            fout.write(html_body)
+
+        html_body = html_template % (title, url, lxml.html.tostring(article))
+        filename = page_id + ' ' + title + '.html'
+        with open(os.path.join(self.date_dir, filename.encode('gbk')), 'w') as fout:
+            fout.write(html_body.encode('gbk'))
 
 if __name__ == '__main__':
     spider = CLSpider()
