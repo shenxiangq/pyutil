@@ -1,5 +1,7 @@
+#! /usr/bin/env python
+
 from concurrent.futures import ThreadPoolExecutor
-import urllib2, lxml.html, re, os, uuid
+import urllib2, lxml.html, re, os, uuid, sys
 from datetime import datetime
 from util import retry, to_unicode
 
@@ -90,7 +92,7 @@ class CLSpider(object):
             with open('exists.txt', 'w') as fout:
                 fout.write('\n'.join(self.exists_list))
 
-        self.executor.shutdown(wait=True)
+        #self.executor.shutdown(wait=True)
 
     def start(self):
         for curl in catalog:
@@ -101,6 +103,7 @@ class CLSpider(object):
                 os.mkdir(self.date_dir)
                 os.mkdir(os.path.join(self.date_dir, 'imgs'))
             self.check_hub(hub_url)
+
 
     def detail_page(self, url, title, page_id):
         #import pdb;pdb.set_trace()
@@ -139,6 +142,17 @@ class CLSpider(object):
         with open(os.path.join(self.date_dir, filename.encode('gbk')), 'w') as fout:
             fout.write(html_body.encode('gbk'))
 
+    def one_page(self, url):
+        #url = 'http://cl.recl.pw/htm_data/7/1601/1813658.html'
+        self.date_dir = os.path.join('data', 'temp')
+        page_id = re.search('/(\d+)\.html', url) or ''
+        if page_id:
+            page_id = page_id.group(1)
+        self.detail_page(url, page_id, page_id)
+
 if __name__ == '__main__':
     spider = CLSpider()
-    spider.start()
+    if len(sys.argv) <= 1:
+        spider.start()
+    else:
+        spider.one_page(sys.argv[1])
