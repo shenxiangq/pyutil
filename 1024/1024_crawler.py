@@ -140,7 +140,7 @@ class CLSpider(object):
         html_body = html_template % (title, url, lxml.html.tostring(article))
         filename = page_id + ' ' + title + '.html'
         with open(os.path.join(self.date_dir, filename.encode('gbk')), 'w') as fout:
-            fout.write(html_body.encode('gbk'))
+            fout.write(html_body.encode('gbk', 'ignore'))
 
     def one_page(self, url):
         #url = 'http://cl.recl.pw/htm_data/7/1601/1813658.html'
